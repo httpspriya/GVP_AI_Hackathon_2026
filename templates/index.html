@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Attendance System{% endblock %}
+{% block content %}
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Total Students</h6>
+                <h3 class="mb-0">{{ total_students }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Low Attendance (&lt;75%)</h6>
+                <h3 class="mb-0 {% if low_attendance > 0 %}text-warning{% endif %}">{{ low_attendance }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Students</div>
+    <div class="card-body">
+        {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead><tr><th>Roll No</th><th>Name</th><th>Semester</th><th>Attendance %</th><th>Marks</th></tr></thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>{{ s.roll_no }}</td>
+                            <td>{{ s.name }}</td>
+                            <td>{{ s.semester }}</td>
+                            <td>
+                                {% if s.total_classes > 0 %}
+                                    {{ "%.1f"|format(s.total_attendance / s.total_classes * 100) }}%
+                                {% else %}—{% endif %}
+                            </td>
+                            <td>{{ s.marks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No students yet. <a href="{{ url_for('students') }}">Add students</a> or use AI to generate sample data.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

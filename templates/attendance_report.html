@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Monthly Report - Attendance System{% endblock %}
+{% block content %}
+<h2 class="mb-4">One Month Attendance Report</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Month</label>
+                <input type="month" name="month" class="form-control"
+                       value="{{ '%04d-%02d'|format(year, month) }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">View Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">{{ month_name }} — Date-wise attendance for every student</div>
+    <div class="card-body p-0">
+        {% if students %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-nowrap sticky-col">Roll No</th>
+                        <th class="text-nowrap sticky-col">Name</th>
+                        {% for d in dates %}
+                        <th class="text-center text-nowrap" style="min-width: 36px;">{{ d[8:10] }}</th>
+                        {% endfor %}
+                        <th class="text-center">%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td class="text-nowrap sticky-col">{{ s.roll_no }}</td>
+                        <td class="text-nowrap sticky-col">{{ s.name }}</td>
+                        {% for d in dates %}
+                            {% set status = attendance_map[d].get(s.id) %}
+                            {% if status == 'present' %}
+                                <td class="text-center text-success fw-bold">P</td>
+                            {% elif status == 'absent' %}
+                                <td class="text-center text-danger">A</td>
+                            {% else %}
+                                <td class="text-center text-muted">—</td>
+                            {% endif %}
+                        {% endfor %}
+                        <td class="text-center fw-semibold">
+                            {% set pct = (monthly_pct|default({})).get(s.id, (0, 0)) %}
+                            {% if pct[1] > 0 %}
+                                {{ "%.0f"|format(pct[0] / pct[1] * 100) }}%
+                            {% else %}—{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="p-2 border-top bg-light small text-muted">
+            <strong>P</strong> = Present &nbsp; <strong>A</strong> = Absent &nbsp; <strong>—</strong> = Not marked
+        </div>
+        {% else %}
+        <p class="p-4 text-muted mb-0">No students. <a href="{{ url_for('students') }}">Add students</a> first.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+.sticky-col { position: sticky; left: 0; background: #fff; z-index: 1; }
+thead .sticky-col { background: #f8fafc; }
+</style>
+{% endblock %}

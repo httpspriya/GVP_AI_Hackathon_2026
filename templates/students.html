@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Students - Attendance System{% endblock %}
+{% block content %}
+<h2 class="mb-4">Student Management</h2>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card">
+            <div class="card-header">Add Student</div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-2">
+                        <label class="form-label">Roll No <span class="text-muted">(AI-validated)</span></label>
+                        <input type="text" name="roll_no" class="form-control" placeholder="e.g. CS101 or 2024-CS-001" required
+                               pattern="[A-Za-z0-9\-]{3,15}" title="3-15 alphanumeric chars, hyphens allowed">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Semester</label>
+                        <select name="semester" class="form-select" required>
+                            {% for i in range(1, 9) %}<option value="{{ i }}">Semester {{ i }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Student</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3 border-primary">
+            <div class="card-header d-flex align-items-center">
+                <span class="badge badge-ai bg-primary me-2">AI</span> Generate Sample Data
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('ai_generate_sample') }}" class="d-flex gap-2">
+                    <input type="number" name="count" value="5" min="1" max="10" class="form-control" style="max-width:80px">
+                    <button type="submit" class="btn btn-outline-primary">Generate Students</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">Student List</div>
+            <div class="card-body">
+                {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>Roll No</th><th>Name</th><th>Semester</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {% for s in students %}
+                                <tr>
+                                    <td>{{ s.roll_no }}</td>
+                                    <td>{{ s.name }}</td>
+                                    <td>{{ s.semester }}</td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('delete_student', student_id=s.id) }}" class="d-inline"
+                                              onsubmit="return confirm('Delete this student?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No students. Add manually or generate sample data above.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
